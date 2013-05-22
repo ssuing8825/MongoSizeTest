@@ -11,6 +11,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using Ploeh.AutoFixture;
+using MongoDB.Driver.Linq;
 
 namespace ConsoleApplication1
 {
@@ -29,31 +30,86 @@ namespace ConsoleApplication1
 
         private static void CreateOptionSeven()
         {
-            var baseDate = new DateTime(2012,1,1);
+            var baseDate = new DateTime(2013, 1, 1);
             var collection = GetMongoCollection("Customers");
-            
+
+            //Create a customer. 
+            var customerBody = IndividualCustomer();
+
+            //Set the Original Creation Date
+            customerBody.OriginalInceptionDate = baseDate;
+
+            var customerId = ObjectId.GenerateNewId().ToString();
+
+            //Need to set the Customer Id, This value doesn't change between Versions
+            customerBody.CustomerAccount[0].CustomerAccountId = customerId;
+            customerBody.LastUpdated = baseDate;
+            collection.Insert(customerBody);
+
+
+            //Update the customer
+            customerBody.FirstName = "Steve";
+            //Need to clear out the ID so that an insert will occur
+            customerBody.Id = null;
+            //Update the last update date. This will be used to retrieve the latest.
+            customerBody.LastUpdated = baseDate.AddDays(5);
+            //Insert the document.
+            collection.Insert(customerBody);
+
+            //Update the customer
+            customerBody.FirstName = "Joe";
+            //Need to clear out the ID so that an insert will occur
+            customerBody.Id = null;
+            //Update the last update date. This will be used to retrieve the latest.
+            customerBody.LastUpdated = baseDate.AddDays(10);
+            //Insert the document.
+            collection.Insert(customerBody);
+
+            //Update the customer
+            customerBody.FirstName = "Darrin";
+            //Need to clear out the ID so that an insert will occur
+            customerBody.Id = null;
+            //Update the last update date. This will be used to retrieve the latest.
+            customerBody.LastUpdated = baseDate.AddDays(15);
+            //Insert the document.
+            collection.Insert(customerBody);
+
+            //This will retieve the latest version.
+            var result = collection.AsQueryable<IndividualCustomer>()
+                                   .Where(c => c.CustomerAccount[0].CustomerAccountId == customerId)
+                                   .OrderByDescending(c => c.LastUpdated)
+                                   .First();
+
+            Console.WriteLine("Last updated {0}", result.LastUpdated);
+
+            //This is the As-Of query. Doesn't include the time element, but should 
+            var effectiveDate = new DateTime(2013, 1, 11);
+            result = collection.AsQueryable<IndividualCustomer>()
+                        .Where(c => c.CustomerAccount[0].CustomerAccountId == customerId && c.LastUpdated <= effectiveDate)
+                        .OrderByDescending(c => c.LastUpdated)
+                        .First();
+
+            Console.WriteLine("Last updated {0}", result.LastUpdated);
+
+            //This will return all future transaction based on a date.
+            effectiveDate = new DateTime(2013, 1, 8);
+            var manyResult = collection.AsQueryable<IndividualCustomer>()
+                        .Where(c => c.CustomerAccount[0].CustomerAccountId == customerId && c.LastUpdated >= effectiveDate)
+                        .OrderBy(c => c.LastUpdated);
+
+            Console.WriteLine("Number of snapshots {0} ", manyResult.Count());
+
+        }
+
+        private static IndividualCustomer IndividualCustomer()
+        {
             var fixture = new Fixture();
             fixture.Register<DateTime>(() => new DateTime(2001, 12, 12));
 
             var customerBody = fixture.Build<IndividualCustomer>()
-                           .Without(c => c.Id)
-                           .Create();
-            customerBody.OriginalInceptionDate = baseDate;
-            customerBody.CustomerAccount[0].CustomerAccountId = ObjectId.GenerateNewId().ToString();
-
-            customerBody.LastUpdated = baseDate;
-            collection.Insert(customerBody);
-            
-
-            //Update the customer
-            customerBody.FirstName = "Steve";
-            customerBody.Id = null;
-            customerBody.LastUpdated = baseDate.AddDays(5);
-            collection.Insert(customerBody);
-
-
-
-
+                                      .Without(c => c.Id)
+                                      .Create();
+            return customerBody;
         }
 
         private static void RunCustomer()
