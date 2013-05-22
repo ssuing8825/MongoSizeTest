@@ -35,8 +35,9 @@
     <Reference Include="AutoMapper">
       <HintPath>..\packages\AutoMapper.2.2.1\lib\net40\AutoMapper.dll</HintPath>
     </Reference>
-    <Reference Include="CustomerAccount.Model">
-      <HintPath>..\..\..\..\..\..\tfs\Multiline\CustomerAccount\Main\src\CustomerAccount.Model\bin\Debug\CustomerAccount.Model.dll</HintPath>
+    <Reference Include="CustomerAccount.Model, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\CustomerAccount.Model.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Bson">
       <HintPath>..\packages\mongocsharpdriver.1.8.1\lib\net35\MongoDB.Bson.dll</HintPath>

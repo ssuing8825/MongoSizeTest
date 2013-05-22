@@ -42,11 +42,10 @@ namespace ConsoleApplication1
             var customerId = ObjectId.GenerateNewId().ToString();
 
             //Need to set the Customer Id, This value doesn't change between Versions
-            customerBody.CustomerAccount[0].CustomerAccountId = customerId;
+            customerBody.CustomerAccount.CustomerAccountId = customerId;
             customerBody.LastUpdated = baseDate;
             collection.Insert(customerBody);
-
-
+            
             //Update the customer
             customerBody.FirstName = "Steve";
             //Need to clear out the ID so that an insert will occur
@@ -55,6 +54,8 @@ namespace ConsoleApplication1
             customerBody.LastUpdated = baseDate.AddDays(5);
             //Insert the document.
             collection.Insert(customerBody);
+            var idOfSecondUpdate = customerBody.Id;
+
 
             //Update the customer
             customerBody.FirstName = "Joe";
@@ -64,6 +65,7 @@ namespace ConsoleApplication1
             customerBody.LastUpdated = baseDate.AddDays(10);
             //Insert the document.
             collection.Insert(customerBody);
+   
 
             //Update the customer
             customerBody.FirstName = "Darrin";
@@ -76,7 +78,7 @@ namespace ConsoleApplication1
 
             //This will retieve the latest version.
             var result = collection.AsQueryable<IndividualCustomer>()
-                                   .Where(c => c.CustomerAccount[0].CustomerAccountId == customerId)
+                                   .Where(c => c.CustomerAccount.CustomerAccountId == customerId)
                                    .OrderByDescending(c => c.LastUpdated)
                                    .First();
 
@@ -85,20 +87,23 @@ namespace ConsoleApplication1
             //This is the As-Of query. Doesn't include the time element, but should 
             var effectiveDate = new DateTime(2013, 1, 11);
             result = collection.AsQueryable<IndividualCustomer>()
-                        .Where(c => c.CustomerAccount[0].CustomerAccountId == customerId && c.LastUpdated <= effectiveDate)
+                        .Where(c => c.CustomerAccount.CustomerAccountId == customerId && c.LastUpdated <= effectiveDate)
                         .OrderByDescending(c => c.LastUpdated)
                         .First();
 
             Console.WriteLine("Last updated {0}", result.LastUpdated);
 
-            //This will return all future transaction based on a date.
+            //This will return all future transaction based on a date for OOS.
             effectiveDate = new DateTime(2013, 1, 8);
             var manyResult = collection.AsQueryable<IndividualCustomer>()
-                        .Where(c => c.CustomerAccount[0].CustomerAccountId == customerId && c.LastUpdated >= effectiveDate)
+                        .Where(c => c.CustomerAccount.CustomerAccountId == customerId && c.LastUpdated >= effectiveDate)
                         .OrderBy(c => c.LastUpdated);
 
             Console.WriteLine("Number of snapshots {0} ", manyResult.Count());
 
+            //First by the document ID
+            var specificCustomer = collection.AsQueryable<IndividualCustomer>().First(c => c.Id == idOfSecondUpdate);
+            Console.WriteLine("Specific Customer {0} ", specificCustomer.FirstName);
         }
 
         private static IndividualCustomer IndividualCustomer()
