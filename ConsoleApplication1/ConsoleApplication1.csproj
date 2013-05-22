@@ -35,6 +35,9 @@
     <Reference Include="AutoMapper">
       <HintPath>..\packages\AutoMapper.2.2.1\lib\net40\AutoMapper.dll</HintPath>
     </Reference>
+    <Reference Include="CustomerAccount.Model">
+      <HintPath>..\..\..\..\..\..\tfs\Multiline\CustomerAccount\Main\src\CustomerAccount.Model\bin\Debug\CustomerAccount.Model.dll</HintPath>
+    </Reference>
     <Reference Include="MongoDB.Bson">
       <HintPath>..\packages\mongocsharpdriver.1.8.1\lib\net35\MongoDB.Bson.dll</HintPath>
     </Reference>
@@ -43,6 +46,9 @@
     </Reference>
     <Reference Include="Ploeh.AutoFixture">
       <HintPath>..\packages\AutoFixture.3.0.9\lib\net40\Ploeh.AutoFixture.dll</HintPath>
+    </Reference>
+    <Reference Include="PolicySystem.Model">
+      <HintPath>..\..\..\..\..\..\tfs\Multiline\CustomerAccount\Main\src\PolicySystem.Model\bin\Debug\PolicySystem.Model.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
